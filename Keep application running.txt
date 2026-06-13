@@ -1,0 +1,18 @@
+Great! That means the app is running independently of VS Code now.
+
+A few things to keep in mind:
+
+* If you're using **Vite** (`npm run dev`) or **Create React App** (`npm start`), the app will continue running only while that Command Prompt window remains open.
+* If you close that CMD window, the development server stops.
+* For a permanent setup, either:
+
+  * Deploy the app to a hosting service such as [Vercel](https://vercel.com?utm_source=chatgpt.com) or [Netlify](https://www.netlify.com?utm_source=chatgpt.com), or
+  * Run it as a background service/process on your computer using a tool like [PM2](https://pm2.keymetrics.io?utm_source=chatgpt.com).
+
+You can check which framework you're using by looking at the terminal output:
+
+* If it says **Vite**, you're likely accessing the app at something like `http://localhost:5173`.
+* If it says **react-scripts**, it's Create React App and usually runs at `http://localhost:3000`.
+* If it says **Next.js**, it's usually `http://localhost:3000`.
+
+If your next goal is "keep it running even after I close the CMD window or reboot Windows," I can show you how to set that up.

@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import "tailwindcss";
+
+/* =========================
+   GLOBAL STYLES
+========================= */
+
+* {
+  font-family: "Manrope", sans-serif;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #dbeafe;
+}
+
+/* =========================
+   MAIN LAYOUT
+   [card][card][image][card][card]
+========================= */
+
+.page {
+  min-height: 100vh;
+  display: grid;
+
+  grid-template-columns: 1fr auto 1fr;
+
+  align-items: end;
+  padding: 0;
+}
+
+/* =========================
+   LEFT / RIGHT WRAPPERS
+========================= */
+
+.left,
+.right {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* spacing for left side */
+.left {
+  grid-column: 1;
+  justify-content: flex-end;
+  padding-left: 20px;
+}
+
+/* spacing for right side */
+.right {
+  grid-column: 3;
+  justify-content: flex-start;
+  padding-right: 20px;
+}
+
+/* row holding 2 cards */
+.card-row {
+  display: flex;
+  gap: 18px;
+}
+
+/* =========================
+   CENTER IMAGE
+========================= */
+
+.center-image {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.center-image img {
+  width: 300px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =========================
+   CARD STYLE (FIXED LABEL ISSUE)
+========================= */
+
+.form-card {
+  width: 280px;
+  padding: 16px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column; /* 🔥 FIXES LABEL VISIBILITY */
+  gap: 10px;
+
+  transition: transform 0.2s ease;
+}
+
+.form-card:hover {
+  transform: translateY(-4px);
+}
+
+/* =========================
+   FORM ELEMENTS
+========================= */
+
+label {
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: block;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #0f172a;
+  display: block;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #5044e5;
+  box-shadow: 0 0 0 4px rgba(80, 68, 229, 0.15);
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+button {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #5044e5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: #3f37c9;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(80, 68, 229, 0.25);
+}
+
+button:active {
+  transform: translateY(0);
+}
