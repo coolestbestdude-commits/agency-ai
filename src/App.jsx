@@ -15,98 +15,43 @@ export default function App() {
 
   return (
     <div className="page">
-
-      {/* LEFT STACK */}
       <div className="left">
-
-        <form className="form-card">
-          <h2>Contact Us</h2>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Name"
-          />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-          />
-          <button type="submit">Submit</button>
-        </form>
-
-        <form className="form-card">
-          <h2>Contact Us</h2>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Name"
-          />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-          />
-          <button type="submit">Submit</button>
-        </form>
-
+        <div className="card-row">
+          <div className="form-card">
+            <h2>Contact Us</h2>
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Name"
+            />
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="Email"
+            />
+            <button>Submit</button>
+          </div>
+        </div>
       </div>
 
-      {/* CENTER IMAGE */}
       <div className="center-image">
-        <img src="/Team.jpg" alt="center" />
+        <div className="image-label">MM in the area</div>
       </div>
 
-      {/* RIGHT STACK */}
       <div className="right">
-
-        <form className="form-card">
-          <h2>Contact Us</h2>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Name"
-          />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-          />
-          <button type="submit">Submit</button>
-        </form>
-
-        <form className="form-card">
-          <h2>Contact Us</h2>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Name"
-          />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-          />
-          <button type="submit">Submit</button>
-        </form>
-
+        <div className="card-row">
+          <div className="form-card">
+            <h2>Contact Us</h2>
+            <input placeholder="Name" />
+            <input placeholder="Email" />
+            <button>Submit</button>
+          </div>
+        </div>
       </div>
-
     </div>
   );
 }
