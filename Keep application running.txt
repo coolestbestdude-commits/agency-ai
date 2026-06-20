@@ -1,18 +1,33 @@
-Great! That means the app is running independently of VS Code now.
+Excellent! 🎉 Glad it’s live and looking good.
 
-A few things to keep in mind:
+You’ve now got a solid workflow:
 
-* If you're using **Vite** (`npm run dev`) or **Create React App** (`npm start`), the app will continue running only while that Command Prompt window remains open.
-* If you close that CMD window, the development server stops.
-* For a permanent setup, either:
+1. Make changes locally
+2. Test with `npm run dev`
+3. Check:
 
-  * Deploy the app to a hosting service such as [Vercel](https://vercel.com?utm_source=chatgpt.com) or [Netlify](https://www.netlify.com?utm_source=chatgpt.com), or
-  * Run it as a background service/process on your computer using a tool like [PM2](https://pm2.keymetrics.io?utm_source=chatgpt.com).
+   ```bash
+   git status
+   ```
+4. Commit:
 
-You can check which framework you're using by looking at the terminal output:
+   ```bash
+   git add .
+   git commit -m "your update"
+   ```
+5. Push:
 
-* If it says **Vite**, you're likely accessing the app at something like `http://localhost:5173`.
-* If it says **react-scripts**, it's Create React App and usually runs at `http://localhost:3000`.
-* If it says **Next.js**, it's usually `http://localhost:3000`.
+   ```bash
+   git push origin main
+   ```
+6. Vercel updates production automatically 🚀
 
-If your next goal is "keep it running even after I close the CMD window or reboot Windows," I can show you how to set that up.
+Also, the final touches made a big difference:
+
+* full background image working
+* centered branded title
+* better typography with `Pacifico`
+* gradient/glow lettering
+* responsive layout
+
+Nice job getting it from a blue placeholder page to a proper branded landing page. 👏
