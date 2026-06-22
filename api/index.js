@@ -1,5 +1,6 @@
 import express from "express";
-import { Pool } from "pg";
+import pkg from "pg";
+const { Pool } = pkg;
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -20,20 +21,11 @@ const db = new Pool({
   },
 });
 
-// Test connection on startup
-db.connect((err, client, release) => { 
-  if (err) {
-    return console.error("❌ Error acquiring client from Postgres pool:", err.stack);
-  }
-  console.log("🚀 Connected to Neon Postgres database successfully!");
-  release();
-});
-
 // ----------------------
 // ROUTES
 // ----------------------
 
-// 1. Fetch all surveys (Handles both /surveys and /api/surveys)
+// 1. Fetch all surveys
 app.get(["/surveys", "/api/surveys"], async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM customer.surveys ORDER BY created_at DESC;");
@@ -64,43 +56,13 @@ app.post(["/contacts", "/api/contacts"], async (req, res) => {
   }
 }); 
 
-// 3. Update an existing contact
-app.put(["/contacts/:id", "/api/contacts/:id"], async (req, res) => {
-  const { id } = req.params;
-  const { name, email, phone, appointment_date, start_time, end_time } = req.body;
-
-  const updateQuery = `
-    UPDATE customer.contacts
-    SET
-      name = $1,
-      email = $2,
-      phone = $3,
-      appointment_date = $4,
-      start_time = $5,
-      end_time = $6
-    WHERE id = $7
-    RETURNING *;
-  `;
-  const values = [name, email, phone, appointment_date, start_time, end_time, id];
-
-  try {
-    const result = await db.query(updateQuery, values);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Contact record not found" });   
-    }
-    res.json({ success: true, contact: result.rows[0] });
-  } catch (error) {
-    console.error("Error updating contact:", error);
-    res.status(500).json({ error: "Database failure updating contact info" });
-  }
-});
-
-// 4. Create a new Survey Submission (Handles any combination Vercel routes down)
+// 3. Create a new Survey Submission (Fixed schema mapping)
 app.post(["/surveys", "/survey", "/api/surveys", "/api/survey"], async (req, res) => {
   const { experience, source, recommend } = req.body;
 
+  // Fixed target variable to match 'found_us' column inside Neon DB schema
   const insertQuery = `
-    INSERT INTO customer.surveys (experience, source, recommend)
+    INSERT INTO customer.surveys (experience, found_us, recommend)
     VALUES ($1, $2, $3)
     RETURNING *;
   `;
@@ -111,14 +73,19 @@ app.post(["/surveys", "/survey", "/api/surveys", "/api/survey"], async (req, res
     res.status(201).json({ success: true, survey: result.rows[0] });
   } catch (error) {
     console.error("❌ Error saving survey to Neon:", error);
-    res.status(500).json({ error: "Database failure saving survey info" });
+    res.status(500).json({ error: error.message || "Database failure saving survey info" });
   }
 });
 
 // ----------------------
-// START SERVER
+// EXPORT FOR VERCEL SERVERLESS
 // ----------------------
+// Vercel serverless requires exporting the express app handler instance directly
+export default app;
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running smoothly on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running locally on port ${PORT}`);
+  });
+}
