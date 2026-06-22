@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 export default function App() {
+  // Balanced to check your environment config, defaulting to backend port 5000
+  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const [form, setForm] = useState({
     name: "",
@@ -13,162 +15,192 @@ export default function App() {
 
   const [survey, setSurvey] = useState({
     experience: "",
-    foundUs: "",
+    source: "", // Fixed key name matching your Neon column
     recommend: "",
   });
 
+  // -------------------------
+  // CONTACT FORM CHANGE
+  // -------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    let updatedForm = {
+    console.log("CHANGE FIRED:", name, value);
+
+    const updated = {
       ...form,
       [name]: value,
     };
 
-    // auto +1 hour
     if (name === "startTime" && value) {
-      const [hours, minutes] = value.split(":");
-
+      const [h, m] = value.split(":");
       const end = new Date();
-      end.setHours(Number(hours) + 1, Number(minutes));
-
-      updatedForm.endTime = end.toTimeString().substring(0, 5);
+      end.setHours(Number(h) + 1, Number(m));
+      updated.endTime = end.toTimeString().slice(0, 5);
     }
 
-    setForm(updatedForm);
+    setForm(updated);
   };
 
+  // -------------------------
+  // SURVEY CHANGE
+  // -------------------------
   const handleSurveyChange = (e) => {
-    setSurvey({
-      ...survey,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setSurvey((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // ================= CONTACT =================
+  // -------------------------
+  // CONTACT SUBMIT
+  // -------------------------
   const submitContact = async () => {
     try {
-      const response = await fetch("/api/contact", {
+      console.log("CONTACT STATE:", form);
+
+      // Format date safely for backend
+      const formattedDate = form.date ? `${form.date} 00:00:00` : null;
+
+      const payload = {
+        name: form.name || null,
+        email: form.email || null,
+        phone: form.phone || null,
+        appointment_date: formattedDate,
+        start_time: form.startTime || null,
+        end_time: form.endTime || null,
+      };
+
+      console.log("FINAL CONTACT PAYLOAD:", payload);
+
+      // Fixed endpoint mapping to /api/contacts matching your backend code
+      const response = await fetch(`${API}/api/contacts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        alert(data.message);
+      if (!response.ok) throw new Error(data.error || "Contact failed");
 
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          date: "",
-          startTime: "",
-          endTime: "",
-        });
-      } else {
-        alert("Database error");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Cannot connect to API");
+      alert("Appointment saved successfully!");
+      
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        date: "",
+        startTime: "",
+        endTime: "",
+      });
+    } catch (err) {
+      console.error("CONTACT ERROR:", err);
+      alert("Error saving appointment. Check console.");
     }
   };
 
-  // ================= SURVEY =================
+  // -------------------------
+  // SURVEY SUBMIT
+  // -------------------------
   const submitSurvey = async () => {
     try {
-      const response = await fetch("/api/survey", {
+      console.log("SURVEY STATE:", survey);
+
+      const payload = {
+        experience: survey.experience,
+        source: survey.source, // Fixed to map directly to backend experience/source/recommend vars
+        recommend: survey.recommend,
+      };
+
+      console.log("FINAL SURVEY PAYLOAD:", payload);
+
+      const response = await fetch(`${API}/api/surveys`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(survey),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        alert(data.message);
-
-        setSurvey({
-          experience: "",
-          foundUs: "",
-          recommend: "",
-        });
-      } else {
-        alert("Survey database error");
+      if (!response.ok) {
+        throw new Error(data.error || "Survey failed");
       }
-    } catch (error) {
-      console.error(error);
-      alert("Survey API connection failed");
+
+      alert("Survey submitted successfully!");
+
+      setSurvey({
+        experience: "",
+        source: "",
+        recommend: "",
+      });
+    } catch (err) {
+      console.error("SURVEY ERROR:", err);
+      alert("Error submitting survey. Check console.");
     }
   };
 
+  // -------------------------
+  // UI
+  // -------------------------
   return (
     <div className="page">
+      <div className="image-label">MM in the area</div>
 
+      {/* CONTACT */}
       <div className="left">
-        <div className="card-row">
-          <div className="form-card">
-            <h2>Book an Appointment</h2>
+        <div className="form-card">
+          <h2>Book Appointment</h2>
 
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
-            <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Contact Number" />
-            <input type="date" name="date" value={form.date} onChange={handleChange} />
+          <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
+          <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
+          <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" />
 
-            <label>Start Time</label>
-            <input type="time" name="startTime" value={form.startTime} onChange={handleChange} />
+          <input type="date" name="date" value={form.date} onChange={handleChange} />
 
-            <label>End Time (1 hour)</label>
-            <input type="time" name="endTime" value={form.endTime} readOnly />
+          <input type="time" name="startTime" value={form.startTime} onChange={handleChange} />
 
-            <button onClick={submitContact}>Submit Appointment</button>
-          </div>
+          <input type="time" name="endTime" value={form.endTime} readOnly />
+
+          <button onClick={submitContact}>Submit Appointment</button>
         </div>
       </div>
 
-      <div className="center-image">
-        <div className="image-label">MM in the area</div>
-      </div>
-
+      {/* SURVEY */}
       <div className="right">
-        <div className="card-row">
-          <div className="form-card">
+        <div className="form-card">
+          <h2>Customer Survey</h2>
 
-            <h2>Customer Survey</h2>
+          <input
+            name="experience"
+            value={survey.experience}
+            onChange={handleSurveyChange}
+            placeholder="Experience"
+          />
 
-            <input
-              name="experience"
-              value={survey.experience}
-              onChange={handleSurveyChange}
-              placeholder="How was your experience?"
-            />
+          <input
+            name="source" // Fixed attribute mapping name
+            value={survey.source}
+            onChange={handleSurveyChange}
+            placeholder="How did you find us?"
+          />
 
-            <input
-              name="foundUs"
-              value={survey.foundUs}
-              onChange={handleSurveyChange}
-              placeholder="How did you find us?"
-            />
+          <input
+            name="recommend"
+            value={survey.recommend}
+            onChange={handleSurveyChange}
+            placeholder="Recommend?"
+          />
 
-            <input
-              name="recommend"
-              value={survey.recommend}
-              onChange={handleSurveyChange}
-              placeholder="Would you recommend us?"
-            />
-
-            <button onClick={submitSurvey}>Submit Survey</button>
-
-          </div>
+          <button onClick={submitSurvey}>Submit Survey</button>
         </div>
       </div>
-
     </div>
   );
 }
