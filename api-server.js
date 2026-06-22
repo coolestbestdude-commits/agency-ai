@@ -1,147 +1,104 @@
 import express from "express";
+import { Pool } from "pg";
 import cors from "cors";
-import mysql from "mysql2/promise";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-
-// Local MySQL connection
-const db = await mysql.createConnection({
-  host: "localhost",
-  user: "jacques",
-  password: "1234567",
-  database: "customer",
+// ----------------------
+// DB CONNECTION (Neon Postgres)
+// ----------------------
+const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: true, // Required for Neon secure connections
+  },
 });
 
+// Test connection on startup
+db.connect((err, client, release) => {
+  if (err) {
+    return console.error("❌ Error acquiring client from Postgres pool:", err.stack);
+  }
+  console.log("🚀 Connected to Neon Postgres database successfully!");
+  release();
+});
 
-console.log("MySQL connected");
+// ----------------------
+// ROUTES
+// ----------------------
 
-
-// Appointment API
-app.post("/api/contact", async (req, res) => {
-
-  console.log("Appointment received:", req.body);
-
-  const {
-    name,
-    email,
-    phone,
-    date,
-    startTime,
-    endTime
-  } = req.body;
-
-
+// 1. Fetch all surveys
+app.get("/api/surveys", async (req, res) => {
   try {
-
-    await db.execute(
-      `
-      INSERT INTO contacts
-      (
-        name,
-        email,
-        phone,
-        appointment_date,
-        start_time,
-        end_time
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-      `,
-      [
-        name,
-        email,
-        phone,
-        date,
-        startTime,
-        endTime
-      ]
-    );
-
-
-    res.json({
-      success: true,
-      message: "Appointment saved"
-    });
-
-
+    const result = await db.query("SELECT * FROM customer.surveys ORDER BY created_at DESC;");
+    res.json(result.rows); // Postgres results live inside .rows
   } catch (error) {
-
-    console.error("CONTACT ERROR:", error);
-
-    res.status(500).json({
-      success:false,
-      error:error.message
-    });
-
+    console.error("Error fetching surveys:", error);
+    res.status(500).json({ error: "Internal server error reading surveys" });
   }
-
 });
 
+// 2. Create/Update a Contact (Appointment Booking)
+app.post("/api/contacts", async (req, res) => {
+  const { name, email, phone, appointment_date, start_time, end_time } = req.body;
 
-
-// Survey API
-app.post("/api/survey", async (req, res) => {
-
-  console.log("Survey received:", req.body);
-
-
-  const {
-    experience,
-    foundUs,
-    recommend
-  } = req.body;
-
+  const insertQuery = `
+    INSERT INTO customer.contacts (name, email, phone, appointment_date, start_time, end_time)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING *;
+  `;
+  const values = [name, email, phone, appointment_date, start_time, end_time];
 
   try {
-
-    await db.execute(
-      `
-      INSERT INTO surveys
-      (
-        experience,
-        found_us,
-        recommend
-      )
-      VALUES (?, ?, ?)
-      `,
-      [
-        experience,
-        foundUs,
-        recommend
-      ]
-    );
-
-
-    res.json({
-      success:true,
-      message:"Survey saved"
-    });
-
-
-  } catch(error) {
-
-    console.error("SURVEY ERROR:", error);
-
-
-    res.status(500).json({
-      success:false,
-      error:error.message
-    });
-
+    const result = await db.query(insertQuery, values);
+    res.status(201).json({ success: true, contact: result.rows[0] });
+  } catch (error) {
+    console.error("Error saving contact:", error);
+    res.status(500).json({ error: "Database failure saving contact info" });
   }
-
 });
 
+// 3. Update an existing contact
+app.put("/api/contacts/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone, appointment_date, start_time, end_time } = req.body;
 
+  const updateQuery = `
+    UPDATE customer.contacts
+    SET
+      name = $1,
+      email = $2,
+      phone = $3,
+      appointment_date = $4,
+      start_time = $5,
+      end_time = $6
+    WHERE id = $7
+    RETURNING *;
+  `;
+  const values = [name, email, phone, appointment_date, start_time, end_time, id];
 
-// Start server
-app.listen(4000, () => {
+  try {
+    const result = await db.query(updateQuery, values);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Contact record not found" });
+    }
+    res.json({ success: true, contact: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating contact:", error);
+    res.status(500).json({ error: "Database failure updating contact info" });
+  }
+});
 
-  console.log(
-    "API running on http://localhost:4000"
-  );
-
+// ----------------------
+// START SERVER
+// ----------------------
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running smoothly on port ${PORT}`);
 });
