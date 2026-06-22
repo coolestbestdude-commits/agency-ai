@@ -1,8 +1,9 @@
 import { useState } from "react";
 
 export default function App() {
-  // Balanced to check your environment config, defaulting to backend port 5000
-  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  // Using a relative path allows Vercel to route automatically in production, 
+  // and works flawlessly with Vite's proxy or local setups.
+  const API_BASE = "/api";
 
   const [form, setForm] = useState({
     name: "",
@@ -15,7 +16,7 @@ export default function App() {
 
   const [survey, setSurvey] = useState({
     experience: "",
-    source: "", // Fixed key name matching your Neon column
+    source: "", 
     recommend: "",
   });
 
@@ -61,7 +62,6 @@ export default function App() {
     try {
       console.log("CONTACT STATE:", form);
 
-      // Format date safely for backend
       const formattedDate = form.date ? `${form.date} 00:00:00` : null;
 
       const payload = {
@@ -75,8 +75,7 @@ export default function App() {
 
       console.log("FINAL CONTACT PAYLOAD:", payload);
 
-      // Fixed endpoint mapping to /api/contacts matching your backend code
-      const response = await fetch(`${API}/api/contacts`, {
+      const response = await fetch(`${API_BASE}/contacts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,13 +112,13 @@ export default function App() {
 
       const payload = {
         experience: survey.experience,
-        source: survey.source, // Fixed to map directly to backend experience/source/recommend vars
+        source: survey.source, 
         recommend: survey.recommend,
       };
 
       console.log("FINAL SURVEY PAYLOAD:", payload);
 
-      const response = await fetch(`${API}/api/surveys`, {
+      const response = await fetch(`${API_BASE}/surveys`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +184,7 @@ export default function App() {
           />
 
           <input
-            name="source" // Fixed attribute mapping name
+            name="source" 
             value={survey.source}
             onChange={handleSurveyChange}
             placeholder="How did you find us?"
