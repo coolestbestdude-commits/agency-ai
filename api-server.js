@@ -21,7 +21,7 @@ const db = new Pool({
 });
 
 // Test connection on startup
-db.connect((err, client, release) => {
+db.connect((err, client, release) => { 
   if (err) {
     return console.error("❌ Error acquiring client from Postgres pool:", err.stack);
   }
@@ -33,11 +33,11 @@ db.connect((err, client, release) => {
 // ROUTES
 // ----------------------
 
-// 1. Fetch all surveys
-app.get("/api/surveys", async (req, res) => {
+// 1. Fetch all surveys (Handles both /surveys and /api/surveys)
+app.get(["/surveys", "/api/surveys"], async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM customer.surveys ORDER BY created_at DESC;");
-    res.json(result.rows); // Postgres results live inside .rows
+    res.json(result.rows);
   } catch (error) {
     console.error("Error fetching surveys:", error);
     res.status(500).json({ error: "Internal server error reading surveys" });
@@ -45,7 +45,7 @@ app.get("/api/surveys", async (req, res) => {
 });
 
 // 2. Create/Update a Contact (Appointment Booking)
-app.post("/api/contacts", async (req, res) => {
+app.post(["/contacts", "/api/contacts"], async (req, res) => {
   const { name, email, phone, appointment_date, start_time, end_time } = req.body;
 
   const insertQuery = `
@@ -62,10 +62,10 @@ app.post("/api/contacts", async (req, res) => {
     console.error("Error saving contact:", error);
     res.status(500).json({ error: "Database failure saving contact info" });
   }
-});
+}); 
 
 // 3. Update an existing contact
-app.put("/api/contacts/:id", async (req, res) => {
+app.put(["/contacts/:id", "/api/contacts/:id"], async (req, res) => {
   const { id } = req.params;
   const { name, email, phone, appointment_date, start_time, end_time } = req.body;
 
@@ -86,12 +86,32 @@ app.put("/api/contacts/:id", async (req, res) => {
   try {
     const result = await db.query(updateQuery, values);
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Contact record not found" });
+      return res.status(404).json({ error: "Contact record not found" });   
     }
     res.json({ success: true, contact: result.rows[0] });
   } catch (error) {
     console.error("Error updating contact:", error);
     res.status(500).json({ error: "Database failure updating contact info" });
+  }
+});
+
+// 4. Create a new Survey Submission (Handles any combination Vercel routes down)
+app.post(["/surveys", "/survey", "/api/surveys", "/api/survey"], async (req, res) => {
+  const { experience, source, recommend } = req.body;
+
+  const insertQuery = `
+    INSERT INTO customer.surveys (experience, source, recommend)
+    VALUES ($1, $2, $3)
+    RETURNING *;
+  `;
+  const values = [experience, source, recommend];
+
+  try {
+    const result = await db.query(insertQuery, values);
+    res.status(201).json({ success: true, survey: result.rows[0] });
+  } catch (error) {
+    console.error("❌ Error saving survey to Neon:", error);
+    res.status(500).json({ error: "Database failure saving survey info" });
   }
 });
 
