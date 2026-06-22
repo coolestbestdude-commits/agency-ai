@@ -62,7 +62,7 @@ app.post(["/surveys", "/survey", "/api/surveys", "/api/survey"], async (req, res
 
   // Fixed target variable to match 'found_us' column inside Neon DB schema
   const insertQuery = `
-    INSERT INTO customer.surveys (experience, found_us, recommend)
+    INSERT INTO customer.surveys (experience, source, recommend)
     VALUES ($1, $2, $3)
     RETURNING *;
   `;
