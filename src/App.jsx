@@ -1,9 +1,7 @@
 import { useState } from "react";
 
 export default function App() {
-  // Using a relative path allows Vercel to route automatically in production, 
-  // and works flawlessly with Vite's proxy or local setups.
-  const API_BASE = "/api";
+  const API_BASE = "http://localhost:5000/api";   // ← FIXED
 
   const [form, setForm] = useState({
     name: "",
@@ -11,12 +9,11 @@ export default function App() {
     phone: "",
     date: "",
     startTime: "",
-    endTime: "",
   });
 
   const [survey, setSurvey] = useState({
     experience: "",
-    source: "", 
+    source: "",
     recommend: "",
   });
 
@@ -28,19 +25,10 @@ export default function App() {
 
     console.log("CHANGE FIRED:", name, value);
 
-    const updated = {
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [name]: value,
-    };
-
-    if (name === "startTime" && value) {
-      const [h, m] = value.split(":");
-      const end = new Date();
-      end.setHours(Number(h) + 1, Number(m));
-      updated.endTime = end.toTimeString().slice(0, 5);
-    }
-
-    setForm(updated);
+    }));
   };
 
   // -------------------------
@@ -62,7 +50,16 @@ export default function App() {
     try {
       console.log("CONTACT STATE:", form);
 
-      const formattedDate = form.date ? `${form.date} 00:00:00` : null;
+      const formattedDate = form.date || null;
+
+      let endTime = null;
+
+      if (form.startTime) {
+        const [h, m] = form.startTime.split(":");
+        const end = new Date();
+        end.setHours(Number(h) + 1, Number(m));
+        endTime = end.toTimeString().slice(0, 5);
+      }
 
       const payload = {
         name: form.name || null,
@@ -70,7 +67,7 @@ export default function App() {
         phone: form.phone || null,
         appointment_date: formattedDate,
         start_time: form.startTime || null,
-        end_time: form.endTime || null,
+        end_time: endTime,
       };
 
       console.log("FINAL CONTACT PAYLOAD:", payload);
@@ -85,17 +82,18 @@ export default function App() {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Contact failed");
+      if (!response.ok) {
+        throw new Error(data.error || "Contact failed");
+      }
 
       alert("Appointment saved successfully!");
-      
+
       setForm({
         name: "",
         email: "",
         phone: "",
         date: "",
         startTime: "",
-        endTime: "",
       });
     } catch (err) {
       console.error("CONTACT ERROR:", err);
@@ -112,7 +110,7 @@ export default function App() {
 
       const payload = {
         experience: survey.experience,
-        source: survey.source, 
+        source: survey.source,
         recommend: survey.recommend,
       };
 
@@ -146,26 +144,69 @@ export default function App() {
   };
 
   // -------------------------
+  // AUTO END TIME DISPLAY
+  // -------------------------
+  const endTime = form.startTime
+    ? (() => {
+        const [h, m] = form.startTime.split(":");
+        const end = new Date();
+        end.setHours(Number(h) + 1, Number(m));
+        return end.toTimeString().slice(0, 5);
+      })()
+    : "";
+
+  // -------------------------
   // UI
   // -------------------------
   return (
     <div className="page">
-      <div className="image-label">MM in the area</div>
+      <div className="image-label">MM in the Table View area</div>
 
       {/* CONTACT */}
       <div className="left">
         <div className="form-card">
           <h2>Book Appointment</h2>
 
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
-          <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
-          <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" />
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Name"
+          />
 
-          <input type="date" name="date" value={form.date} onChange={handleChange} />
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email"
+          />
 
-          <input type="time" name="startTime" value={form.startTime} onChange={handleChange} />
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="Phone"
+          />
 
-          <input type="time" name="endTime" value={form.endTime} readOnly />
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+          />
+
+          <input
+            type="time"
+            name="startTime"
+            value={form.startTime}
+            onChange={handleChange}
+          />
+
+          <label style={{ marginTop: "10px", display: "block" }}>
+            End Time (Auto)
+          </label>
+
+          <input type="time" value={endTime} readOnly />
 
           <button onClick={submitContact}>Submit Appointment</button>
         </div>
@@ -184,7 +225,7 @@ export default function App() {
           />
 
           <input
-            name="source" 
+            name="source"
             value={survey.source}
             onChange={handleSurveyChange}
             placeholder="How did you find us?"
