@@ -1,7 +1,8 @@
 import { useState } from "react";
+import Navbar from "./components/Navbar";
 
 export default function App() {
-  const API_BASE = "http://localhost:5000/api";   // ← FIXED
+  const API_BASE = "http://localhost:5000/api";
 
   const [form, setForm] = useState({
     name: "",
@@ -17,43 +18,21 @@ export default function App() {
     recommend: "",
   });
 
-  // -------------------------
-  // CONTACT FORM CHANGE
-  // -------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    console.log("CHANGE FIRED:", name, value);
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // -------------------------
-  // SURVEY CHANGE
-  // -------------------------
   const handleSurveyChange = (e) => {
     const { name, value } = e.target;
-
-    setSurvey((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setSurvey((prev) => ({ ...prev, [name]: value }));
   };
 
-  // -------------------------
-  // CONTACT SUBMIT
-  // -------------------------
   const submitContact = async () => {
     try {
-      console.log("CONTACT STATE:", form);
-
       const formattedDate = form.date || null;
 
       let endTime = null;
-
       if (form.startTime) {
         const [h, m] = form.startTime.split(":");
         const end = new Date();
@@ -70,21 +49,14 @@ export default function App() {
         end_time: endTime,
       };
 
-      console.log("FINAL CONTACT PAYLOAD:", payload);
-
       const response = await fetch(`${API_BASE}/contacts`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Contact failed");
-      }
+      if (!response.ok) throw new Error(data.error || "Contact failed");
 
       alert("Appointment saved successfully!");
 
@@ -101,34 +73,22 @@ export default function App() {
     }
   };
 
-  // -------------------------
-  // SURVEY SUBMIT
-  // -------------------------
   const submitSurvey = async () => {
     try {
-      console.log("SURVEY STATE:", survey);
-
       const payload = {
         experience: survey.experience,
         source: survey.source,
         recommend: survey.recommend,
       };
 
-      console.log("FINAL SURVEY PAYLOAD:", payload);
-
       const response = await fetch(`${API_BASE}/surveys`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Survey failed");
-      }
+      if (!response.ok) throw new Error(data.error || "Survey failed");
 
       alert("Survey submitted successfully!");
 
@@ -143,9 +103,6 @@ export default function App() {
     }
   };
 
-  // -------------------------
-  // AUTO END TIME DISPLAY
-  // -------------------------
   const endTime = form.startTime
     ? (() => {
         const [h, m] = form.startTime.split(":");
@@ -155,90 +112,89 @@ export default function App() {
       })()
     : "";
 
-  // -------------------------
-  // UI
-  // -------------------------
   return (
-    <div className="page">
-      <div className="image-label">MM in the Table View area</div>
+    <div className="min-h-screen flex flex-col w-full">
+      <Navbar />
 
-      {/* CONTACT */}
-      <div className="left">
-        <div className="form-card">
-          <h2>Book Appointment</h2>
+      {/* BACKGROUND IMAGE SECTION */}
+      <div
+        className="flex-1 bg-cover bg-center bg-no-repeat flex flex-col items-center"
+        style={{
+        backgroundImage: "url('/Team2.jpg')",
+        height: "75vh",
+       }}
+         >
+        {/* TITLE */}
+        <h1
+          className="mt-6 text-6xl font-bold text-transparent bg-clip-text drop-shadow-xl z-50"
+          style={{
+            fontFamily: "'Pacifico', cursive",
+            backgroundImage:
+              "linear-gradient(90deg, #d4af37 0%, #ff8c00 50%, #ff3cac 100%)",
+          }}
+        >
+          MM in the Table View area
+        </h1>
 
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Name"
-          />
+        {/* FORMS */}
+        <div
+          className="flex flex-row justify-between w-full"
+          style={{ paddingLeft: "2cm", paddingRight: "4cm", marginBottom: "2cm" }}
+        >
+          {/* Appointment Form */}
+          <div
+          className="form-card appointment-card w-80 rounded-lg shadow-lg space-y-3"
+          style={{ marginTop: "15.5rem" }}
+            >
 
-          <input
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-          />
+            <h2 className="text-xl font-semibold">Book Appointment</h2>
 
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Phone"
-          />
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
+            <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
+            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" />
 
-          <input
-            type="date"
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-          />
+            <input type="date" name="date" value={form.date} onChange={handleChange} />
+            <input type="time" name="startTime" value={form.startTime} onChange={handleChange} />
 
-          <input
-            type="time"
-            name="startTime"
-            value={form.startTime}
-            onChange={handleChange}
-          />
-
-          <label style={{ marginTop: "10px", display: "block" }}>
+            <label className="mt-2 block" style={{ color: "#000" }}>
             End Time (Auto)
-          </label>
+            </label>
 
-          <input type="time" value={endTime} readOnly />
 
-          <button onClick={submitContact}>Submit Appointment</button>
-        </div>
-      </div>
+            <input type="time" value={endTime} readOnly />
 
-      {/* SURVEY */}
-      <div className="right">
-        <div className="form-card">
-          <h2>Customer Survey</h2>
+            <button onClick={submitContact}>Submit Appointment</button>
+          </div>
 
-          <input
-            name="experience"
-            value={survey.experience}
-            onChange={handleSurveyChange}
-            placeholder="Experience"
-          />
+          {/* Survey Form */}
+          <div
+            className="form-card survey-card w-80 rounded-lg shadow-lg"
+            style={{ marginTop: "30.5rem" }}
+             >
 
-          <input
-            name="source"
-            value={survey.source}
-            onChange={handleSurveyChange}
-            placeholder="How did you find us?"
-          />
+            <h2 className="text-xl font-semibold">Customer Survey</h2>
 
-          <input
-            name="recommend"
-            value={survey.recommend}
-            onChange={handleSurveyChange}
-            placeholder="Recommend?"
-          />
+            <input
+              name="experience"
+              value={survey.experience}
+              onChange={handleSurveyChange}
+              placeholder="Experience"
+            />
+            <input
+              name="source"
+              value={survey.source}
+              onChange={handleSurveyChange}
+              placeholder="How did you find us?"
+            />
+            <input
+              name="recommend"
+              value={survey.recommend}
+              onChange={handleSurveyChange}
+              placeholder="Recommend?"
+            />
 
-          <button onClick={submitSurvey}>Submit Survey</button>
+            <button onClick={submitSurvey}>Submit Survey</button>
+          </div>
         </div>
       </div>
     </div>

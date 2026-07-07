@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Pacifico&display=swap');
-@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* =========================
 GLOBAL
 ========================= */
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,103 +14,31 @@ GLOBAL
   font-family: "Manrope", sans-serif;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   width: 100%;
   min-height: 100vh;
+background: none;
+
 }
 
 body {
-  background: url('/Team.jpg') center center / cover no-repeat;
   overflow-x: hidden;
 }
 
 /* =========================
-PAGE LAYOUT
+FORM CARD BASE
 ========================= */
-
-.page {
-  position: relative;
-
-  min-height: 100vh;
-  width: 100%;
-
-  display: flex;
-  justify-content: center;
-  align-items: flex-end; /* ✅ pushes content to bottom */
-
-  gap: 60px;
-
-  padding: 140px 40px 40px;
-}
-
-/* =========================
-TITLE
-========================= */
-
-.image-label {
-  position: absolute;
-
-  top: 70px;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  font-family: "Pacifico", cursive !important;
-  font-size: 5rem;
-  line-height: 1;
-
-  background: linear-gradient(
-    90deg,
-    #d4af37 0%,
-    #ff8c00 50%,
-    #ff3cac 100%
-  );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  white-space: nowrap;
-
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-
-  z-index: 100;
-}
-
-/* =========================
-FORMS
-========================= */
-
-.left,
-.right {
-  width: 320px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* appointment form lower */
-.left {
-  margin-top: 120px;
-}
-
-/* survey slightly lower */
-.right {
-  margin-top: 170px;
-}
-
-/* NEW FORM CARD STYLING */
 .form-card {
-  width: 320px;
+  width: 100%;
+  max-width: 340px;
 
   display: flex;
   flex-direction: column;
   gap: 12px;
 
-  padding: 18px;
+  padding: 20px;
 
+  /* Frosted glass blur effect */
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -121,35 +51,19 @@ FORMS
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-.left h2,
-.right h2 {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #000;
-  text-align: center;
-}
 
 /* =========================
 INPUTS
 ========================= */
-
-input,
-textarea,
-select {
+input, textarea, select {
   width: 100%;
   height: 42px;
-
   border: none;
   border-radius: 10px;
-
   padding: 0 14px;
-
   background: rgba(255, 255, 255, 0.95);
-
   color: #111827;
   font-size: 0.95rem;
-
-  backdrop-filter: blur(2px);
 }
 
 textarea {
@@ -157,9 +71,7 @@ textarea {
   padding-top: 12px;
 }
 
-input:focus,
-textarea:focus,
-select:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }
@@ -167,22 +79,16 @@ select:focus {
 /* =========================
 BUTTONS
 ========================= */
-
 button {
   width: 100%;
   height: 42px;
-
   border: none;
   border-radius: 10px;
-
   background: #4f46e5;
   color: #fff;
-
   font-size: 1rem;
   font-weight: 700;
-
   cursor: pointer;
-
   transition: 0.2s ease;
 }
 
@@ -197,26 +103,57 @@ button:active {
 /* =========================
 MOBILE
 ========================= */
-
 @media (max-width: 1024px) {
-  .page {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    gap: 20px;
-    padding: 140px 20px 40px;
+  .form-card {
+    max-width: 100%;
   }
 
-  .image-label {
-    top: 30px;
-    font-size: 3rem;
-  }
-
-  .left,
-  .right {
-    width: 100%;
-    max-width: 340px;
-    margin-top: 0;
+  /* Stack forms vertically on smaller screens */
+  .appointment-card,
+  .survey-card {
+    margin: 0 auto 20px auto;
   }
 }
+
+/* =========================
+APPOINTMENT CARD
+========================= */
+.appointment-card {
+  height: auto !important;
+}
+
+/* =========================
+SURVEY CARD
+========================= */
+.survey-card {
+  display: flex;
+  flex-direction: column;
+
+  /* Fixed height of 7cm */
+  height: 7cm;
+  max-height: 7cm;
+
+  /* Keep frosted glass look consistent */
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+
+  padding: 14px;
+  gap: 8px;
+}
+
+.survey-card h2,
+.survey-card input,
+.survey-card button {
+  margin: 0 !important;
+}
+
+.survey-card button {
+  margin-top: auto;   /* pushes button to bottom */
+  align-self: stretch;
+}
+
+

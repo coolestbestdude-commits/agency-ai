@@ -1,15 +1,45 @@
-import React from 'react'
-
-const Navbar = ({theme, setTheme}) => {
+export default function Navbar() {
   return (
-    <div className='flex justify-between items-centre px-4 sm:px-12 lg:px-24 
-    xl:px-40 py-4 sticky top-0 z-20 backdrop-blur-xl font-medium bg-white/50 
-    dark:bg-gray-900/70'> 
-    
-      <img src=''/>
-      
-    </div>
-  )
-}
+    <div
+      className="w-full flex items-center justify-between px-6 shadow-md"
+      style={{
+        background: "linear-gradient(90deg, #fff9c4, #ffe0b2)",
+        paddingTop: "6px",
+        paddingBottom: "6px",
+      }}
+    >
+      {/* Small Logo */}
+    <img
+  src="/Massage Logo.jpg"
+  alt="Massage Logo"
+  className="ml-2"
+  style={{
+    height: "60px",
+    width: "auto",
+    maxHeight: "60px",
+    maxWidth: "60px",
+    objectFit: "contain",
+  }}
+/>
 
-export default Navbar
+
+
+      {/* Pricing Button */}
+      <a
+        href="/pricing"
+        className="shadow-md transition hover:bg-blue-700"
+        style={{
+          backgroundColor: "#1976d2",
+          color: "white",
+          fontWeight: "bold",
+          textDecoration: "none",
+          borderRadius: "12px",
+          padding: "10px 20px",
+          display: "inline-block",
+        }}
+      >
+        Pricing
+      </a>
+    </div>
+  );
+}
