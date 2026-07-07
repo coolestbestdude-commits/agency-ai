@@ -2,7 +2,7 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 
 export default function App() {
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://agency-ai-backend-9kdt.onrender.com/api";
 
   const [form, setForm] = useState({
     name: "",

@@ -10,6 +10,14 @@ import cors from "cors";
 import contactsHandler from "./api/contacts.js";
 import surveysHandler from "./api/surveys.js";
 
+import pkg from "pg";
+const { Pool } = pkg;
+
+// Create database pool using DATABASE_URL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
 const app = express();
 const PORT = 5000;
 
@@ -17,9 +25,31 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// API routes
+// POST routes
 app.post("/api/contacts", contactsHandler);
 app.post("/api/surveys", surveysHandler);
+
+// ⭐ NEW — GET all contacts
+app.get("/api/contacts", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM contacts ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("GET CONTACTS ERROR:", err);
+    res.status(500).json({ error: "Failed to fetch contacts" });
+  }
+});
+
+// ⭐ NEW — GET all surveys
+app.get("/api/surveys", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM surveys ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("GET SURVEYS ERROR:", err);
+    res.status(500).json({ error: "Failed to fetch surveys" });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Backend API running on port ${PORT}`);
