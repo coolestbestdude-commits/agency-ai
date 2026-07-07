@@ -29,10 +29,12 @@ app.use(express.json());
 app.post("/api/contacts", contactsHandler);
 app.post("/api/surveys", surveysHandler);
 
-// ⭐ NEW — GET all contacts
+// ⭐ GET all contacts
 app.get("/api/contacts", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM contacts ORDER BY id DESC");
+    const result = await pool.query(
+      "SELECT * FROM customer.contacts ORDER BY id DESC"
+    );
     res.json(result.rows);
   } catch (err) {
     console.error("GET CONTACTS ERROR:", err);
@@ -40,10 +42,12 @@ app.get("/api/contacts", async (req, res) => {
   }
 });
 
-// ⭐ NEW — GET all surveys
+// ⭐ GET all surveys
 app.get("/api/surveys", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM surveys ORDER BY id DESC");
+    const result = await pool.query(
+      "SELECT * FROM customer.surveys ORDER BY id DESC"
+    );
     res.json(result.rows);
   } catch (err) {
     console.error("GET SURVEYS ERROR:", err);
